@@ -1,0 +1,693 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cardano RecurringPay | Subscription DApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0033ad;
+      --primary-light: #4d7cfe;
+      --secondary: #00d4aa;
+      --danger: #ff4757;
+      --success: #2ed573;
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --border-radius: 16px;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: var(--light);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .app {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    
+    /* Header */
+    .header {
+      padding: 30px 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .tagline {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    
+    /* Wallet Connection */
+    .wallet-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .wallet-info {
+      text-align: right;
+    }
+    
+    .wallet-address {
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .connect-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    
+    .connect-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(77, 124, 254, 0.4);
+    }
+    
+    /* Main Content */
+    .main-content {
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    
+    @media (max-width: 900px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      font-size: 20px;
+    }
+    
+    .card-title i {
+      color: var(--primary-light);
+      font-size: 22px;
+    }
+    
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .input-with-icon {
+      position: relative;
+    }
+    
+    .input-with-icon i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      transition: var(--transition);
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(77, 124, 254, 0.2);
+    }
+    
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: var(--transition);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(77, 124, 254, 0.3);
+    }
+    
+    /* Subscription Info */
+    .subscription-info {
+      grid-column: span 2;
+      margin-top: 20px;
+    }
+    
+    @media (max-width: 900px) {
+      .subscription-info {
+        grid-column: span 1;
+      }
+    }
+    
+    .subscriptions-list {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .subscription-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary-light);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .subscription-details {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .subscription-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--primary-light);
+    }
+    
+    .subscription-description {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+    
+    .subscription-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .info-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary-light);
+    }
+    
+    .info-label {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #1dd1a1);
+      color: white;
+      border: none;
+      padding: 16px 30px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      min-width: 200px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #ff3838);
+      color: white;
+      border: none;
+      padding: 16px 30px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      min-width: 200px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-sm {
+      padding: 10px 20px;
+      font-size: 14px;
+      min-width: auto;
+    }
+    
+    .btn-success:hover, .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Log Section */
+    .log-section {
+      margin-top: 40px;
+      padding: 0 40px 40px;
+    }
+    
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .log-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .clear-log {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+    
+    .clear-log:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .log-container {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 120px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .log-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .log-time {
+      color: var(--secondary);
+      min-width: 70px;
+    }
+    
+    .log-message {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .log-success {
+      color: var(--success);
+    }
+    
+    .log-error {
+      color: var(--danger);
+    }
+    
+    .log-warning {
+      color: #ffa502;
+    }
+    
+    /* Status Indicator */
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff4757;
+    }
+    
+    .status-dot.active {
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 20px 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    
+    .network-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .network-badge {
+      background: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .header, .main-content, .log-section {
+        padding: 20px;
+      }
+      
+      .wallet-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .wallet-info {
+        text-align: left;
+      }
+      
+      .subscription-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .subscription-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+      }
+    }
+    
+    /* No subscriptions message */
+    .no-subscriptions {
+      text-align: center;
+      padding: 40px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-sync-alt"></i>
+      </div>
+      <div>
+        <div class="logo-text">RecurringPay</div>
+        <div class="tagline">Automated subscriptions on Cardano</div>
+      </div>
+    </div>
+    
+    <div class="wallet-section">
+      <div class="wallet-info">
+        <div class="wallet-address" id="walletAddress">Not connected</div>
+        <div class="status-indicator">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Disconnected</span>
+        </div>
+      </div>
+      <button class="connect-btn" id="connect">
+        <i class="fas fa-wallet"></i>
+        Connect Wallet
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Create Subscription -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fas fa-plus-circle"></i>
+        <h2>Create Subscription</h2>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Subscription Name</label>
+        <div class="input-with-icon">
+          <i class="fas fa-tag"></i>
+          <input type="text" id="subscriptionName" placeholder="e.g., Netflix, Internet Bill, Gym Membership" />
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Description (Optional)</label>
+        <div class="input-with-icon">
+          <i class="fas fa-file-alt"></i>
+          <textarea id="subscriptionDescription" placeholder="e.g., Monthly Netflix subscription, Internet bill payment..."></textarea>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Recipient Address</label>
+        <div class="input-with-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="recipient" placeholder="addr1qy..." />
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Amount (ADA)</label>
+        <div class="input-with-icon">
+          <i class="fas fa-coins"></i>
+          <input type="number" id="amount" placeholder="10" step="0.1" min="1" />
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Payment Interval</label>
+        <div class="input-with-icon">
+          <i class="fas fa-calendar-alt"></i>
+          <select id="interval">
+            <option value="7">Weekly (7 days)</option>
+            <option value="30" selected>Monthly (30 days)</option>
+            <option value="90">Quarterly (90 days)</option>
+            <option value="365">Yearly (365 days)</option>
+            <option value="custom">Custom...</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group" id="customIntervalContainer" style="display: none;">
+        <label class="form-label">Custom Days</label>
+        <div class="input-with-icon">
+          <i class="fas fa-clock"></i>
+          <input type="number" id="customInterval" placeholder="Enter days" min="1" />
+        </div>
+      </div>
+      
+      <button class="btn-primary" id="create">
+        <i class="fas fa-rocket"></i>
+        Create Subscription
+      </button>
+    </div>
+    
+    <!-- Active Subscriptions -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fas fa-history"></i>
+        <h2>Your Subscriptions</h2>
+      </div>
+      
+      <div id="subscriptionsContainer">
+        <div class="no-subscriptions" id="noSubscriptions">
+          No active subscriptions. Create one to get started.
+        </div>
+        <div class="subscriptions-list" id="subscriptionsList">
+          <!-- Subscription items will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Log Section -->
+  <div class="log-section">
+    <div class="log-header">
+      <div class="log-title">Transaction Log</div>
+      <button class="clear-log" id="clearLog">
+        <i class="fas fa-trash-alt"></i>
+        Clear Log
+      </button>
+    </div>
+    
+    <div class="log-container" id="log">
+      <div class="log-entry">
+        <span class="log-time">12:30</span>
+        <span class="log-message">Application ready. Connect your wallet to begin.</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <div class="footer">
+    <div class="network-info">
+      <div class="network-badge">Cardano Testnet</div>
+      <span>Node: Blockfrost.io</span>
+    </div>
+    <div>
+      <i class="fas fa-shield-alt"></i>
+      Smart Contract: v2.1.0 | 
+      <i class="fas fa-code"></i>
+      Open Source
+    </div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

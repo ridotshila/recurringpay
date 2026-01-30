@@ -1,0 +1,1359 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RecurringPay Documentation | Automated Subscriptions on Cardano</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <style>
+    :root {
+      --primary: #0033ad;
+      --primary-light: #4d7cfe;
+      --secondary: #00d4aa;
+      --dark: #0f172a;
+      --darker: #0a0f1e;
+      --light: #f8fafc;
+      --sidebar-width: 280px;
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+      color: var(--light);
+      display: flex;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.9);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .sidebar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .sidebar-title {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-section {
+      margin-bottom: 30px;
+    }
+    
+    .nav-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+    
+    .nav-links {
+      list-style: none;
+    }
+    
+    .nav-link {
+      display: block;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: var(--transition);
+      font-size: 15px;
+    }
+    
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+    
+    .nav-link.active {
+      background: rgba(77, 124, 254, 0.15);
+      color: var(--primary-light);
+      font-weight: 500;
+    }
+    
+    .version-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 40px;
+      max-width: 1000px;
+    }
+    
+    /* Hero Section */
+    .doc-hero {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .doc-hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, white, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .doc-hero p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    /* Sections */
+    .doc-section {
+      margin-bottom: 60px;
+      scroll-margin-top: 20px;
+    }
+    
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .section-title i {
+      color: var(--primary-light);
+    }
+    
+    .section-subtitle {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 40px 0 20px;
+      color: white;
+    }
+    
+    /* Content Cards */
+    .content-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+    
+    .content-card:hover {
+      border-color: rgba(77, 124, 254, 0.2);
+    }
+    
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-title i {
+      color: var(--secondary);
+    }
+    
+    /* Code Blocks */
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+    }
+    
+    .hljs {
+      background: transparent;
+    }
+    
+    /* Info Boxes */
+    .info-box {
+      background: rgba(77, 124, 254, 0.1);
+      border-left: 4px solid var(--primary-light);
+      padding: 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+    
+    .warning-box {
+      background: rgba(255, 165, 0, 0.1);
+      border-left: 4px solid #ffa502;
+      padding: 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+    
+    .success-box {
+      background: rgba(46, 213, 115, 0.1);
+      border-left: 4px solid #2ed573;
+      padding: 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+    
+    /* API Reference */
+    .api-endpoint {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      border-left: 4px solid var(--primary-light);
+    }
+    
+    .endpoint-method {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    
+    .method-get { background: #10b981; color: white; }
+    .method-post { background: #3b82f6; color: white; }
+    .method-put { background: #f59e0b; color: white; }
+    .method-delete { background: #ef4444; color: white; }
+    
+    .endpoint-url {
+      font-family: monospace;
+      color: var(--primary-light);
+    }
+    
+    /* Tables */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    .param-table th {
+      background: rgba(255, 255, 255, 0.05);
+      text-align: left;
+      padding: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .param-table td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .param-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    /* Smart Contract Schema */
+    .schema-card {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: var(--border-radius);
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .schema-title {
+      font-family: monospace;
+      color: var(--secondary);
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .schema-field {
+      display: flex;
+      margin-bottom: 8px;
+      padding-left: 20px;
+    }
+    
+    .field-name {
+      font-family: monospace;
+      color: var(--primary-light);
+      min-width: 150px;
+    }
+    
+    .field-type {
+      font-family: monospace;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Workflow Diagram */
+    .workflow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 40px 0;
+      position: relative;
+    }
+    
+    .workflow-step {
+      text-align: center;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .step-number {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin: 0 auto 15px;
+      color: white;
+    }
+    
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: white;
+    }
+    
+    .step-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .workflow::before {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: 50px;
+      right: 50px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 0;
+    }
+    
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Back to Top */
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 100;
+    }
+    
+    .back-to-top.visible {
+      opacity: 1;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .mobile-toggle {
+        display: flex;
+      }
+      
+      .workflow {
+        flex-direction: column;
+        gap: 30px;
+      }
+      
+      .workflow::before {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 20px;
+      }
+      
+      .doc-hero h1 {
+        font-size: 36px;
+      }
+      
+      .section-title {
+        font-size: 28px;
+      }
+      
+      .content-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Mobile Toggle Button -->
+  <button class="mobile-toggle" id="mobileToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-book"></i>
+      </div>
+      <div>
+        <div class="sidebar-title">RecurringPay Docs</div>
+        <div class="version-badge">v2.1.0</div>
+      </div>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">Getting Started</div>
+      <ul class="nav-links">
+        <li><a href="#overview" class="nav-link active">Overview</a></li>
+        <li><a href="#quick-start" class="nav-link">Quick Start</a></li>
+        <li><a href="#requirements" class="nav-link">Requirements</a></li>
+      </ul>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">Core Concepts</div>
+      <ul class="nav-links">
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#smart-contract" class="nav-link">Smart Contract</a></li>
+        <li><a href="#datum-redeemer" class="nav-link">Datum & Redeemer</a></li>
+      </ul>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">API Reference</div>
+      <ul class="nav-links">
+        <li><a href="#javascript-api" class="nav-link">JavaScript API</a></li>
+        <li><a href="#contract-parameters" class="nav-link">Contract Parameters</a></li>
+        <li><a href="#error-codes" class="nav-link">Error Codes</a></li>
+      </ul>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">Development</div>
+      <ul class="nav-links">
+        <li><a href="#building" class="nav-link">Building Locally</a></li>
+        <li><a href="#testing" class="nav-link">Testing</a></li>
+        <li><a href="#deployment" class="nav-link">Deployment</a></li>
+      </ul>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">Security</div>
+      <ul class="nav-links">
+        <li><a href="#security-model" class="nav-link">Security Model</a></li>
+        <li><a href="#audit" class="nav-link">Audit & Verification</a></li>
+        <li><a href="#best-practices" class="nav-link">Best Practices</a></li>
+      </ul>
+    </div>
+    
+    <div class="nav-section">
+      <div class="nav-title">Resources</div>
+      <ul class="nav-links">
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+        <li><a href="#troubleshooting" class="nav-link">Troubleshooting</a></li>
+        <li><a href="#support" class="nav-link">Support</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="doc-hero">
+      <h1>RecurringPay Documentation</h1>
+      <p>
+        Complete guide to using and developing with RecurringPay - the automated subscription payment system 
+        built on Cardano smart contracts. Learn how to set up recurring payments, manage subscriptions, 
+        and integrate with your applications.
+      </p>
+      <div class="info-box">
+        <strong>Note:</strong> This documentation covers version 2.1.0 of RecurringPay, currently deployed on Cardano Preprod Testnet.
+      </div>
+    </section>
+
+    <!-- Overview -->
+    <section id="overview" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-rocket"></i>
+        Overview
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-info-circle"></i>
+          What is RecurringPay?
+        </h3>
+        <p>
+          RecurringPay is a decentralized application (DApp) built on the Cardano blockchain that enables 
+          automated recurring payments through smart contracts. It allows users to set up subscription-style 
+          payments that execute automatically at specified intervals.
+        </p>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-star"></i>
+          Key Features
+        </h3>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>Automated Payments:</strong> Set it and forget it - payments execute automatically</li>
+          <li><strong>Smart Contract Security:</strong> Funds are secured by Plutus smart contracts</li>
+          <li><strong>Zero Platform Fees:</strong> No middleman, no fees beyond network transaction costs</li>
+          <li><strong>Flexible Scheduling:</strong> Daily, weekly, monthly, or custom intervals</li>
+          <li><strong>Full Control:</strong> Cancel anytime with immediate fund recovery</li>
+          <li><strong>Transparent:</strong> All transactions recorded on-chain for full auditability</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quick-start" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-bolt"></i>
+        Quick Start
+      </h2>
+      
+      <div class="workflow">
+        <div class="workflow-step">
+          <div class="step-number">1</div>
+          <div class="step-title">Connect Wallet</div>
+          <div class="step-desc">Connect your Cardano wallet</div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">2</div>
+          <div class="step-title">Create Subscription</div>
+          <div class="step-desc">Enter recipient & amount</div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">3</div>
+          <div class="step-title">Fund Contract</div>
+          <div class="step-desc">Deposit required ADA</div>
+        </div>
+        <div class="workflow-step">
+          <div class="step-number">4</div>
+          <div class="step-title">Automate</div>
+          <div class="step-desc">Payments execute automatically</div>
+        </div>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-terminal"></i>
+          Basic Usage Example
+        </h3>
+        <pre><code class="javascript">
+import { Lucid, Blockfrost } from "lucid-cardano";
+
+// Initialize Lucid
+const lucid = await Lucid.new(
+  new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "YOUR_API_KEY"),
+  "Preprod"
+);
+
+// Connect wallet
+const api = await window.cardano.lace.enable();
+lucid.selectWallet(api);
+
+// Create subscription
+async function createSubscription(recipient, amount, intervalDays) {
+  const datum = mkRecurringDatum(
+    payerPkh,
+    recipientPkh,
+    amount * 1000000n, // ADA to lovelace
+    intervalDays * 86400n,
+    Math.floor(Date.now() / 1000) + intervalDays * 86400n
+  );
+  
+  const tx = await lucid
+    .newTx()
+    .payToContract(scriptAddress, { inline: datum }, { lovelace: amount * 12n * 1000000n })
+    .complete();
+    
+  return await tx.sign().complete().submit();
+}
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- Requirements -->
+    <section id="requirements" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-check-circle"></i>
+        Requirements
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-desktop"></i>
+          System Requirements
+        </h3>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>Browser:</strong> Modern browser with ES2020 support (Chrome 90+, Firefox 88+, Safari 14+)</li>
+          <li><strong>Wallet:</strong> Cardano wallet extension (Lace, Eternl, Flint, Nami)</li>
+          <li><strong>Network:</strong> Cardano Preprod Testnet access (for testing)</li>
+          <li><strong>JavaScript:</strong> ES6 modules support required</li>
+        </ul>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-key"></i>
+          API Keys Required
+        </h3>
+        <p>You need the following API keys to run the application:</p>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Purpose</th>
+              <th>Get From</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Blockfrost API Key</td>
+              <td>Cardano blockchain access</td>
+              <td><a href="https://blockfrost.io" style="color: var(--primary-light);">blockfrost.io</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-cogs"></i>
+        How It Works
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-project-diagram"></i>
+          Architecture
+        </h3>
+        <p>
+          RecurringPay uses a UTXO-based smart contract model on Cardano. Each subscription is represented 
+          as a UTXO locked at the script address with a datum containing the payment details.
+        </p>
+        
+        <div class="schema-card">
+          <div class="schema-title">Subscription Lifecycle</div>
+          <pre><code class="plaintext">
+1. User creates subscription → UTXO created at script address
+2. Payment time arrives → User executes payment transaction
+3. Smart contract validates → Sends payment to recipient
+4. New UTXO created → With updated next payment time
+5. User cancels → Remaining funds returned, UTXO consumed
+          </code></pre>
+        </div>
+      </div>
+      
+      <h3 class="section-subtitle">Transaction Flow</h3>
+      <div class="content-card">
+        <pre><code class="plaintext">
+┌─────────────┐    ┌──────────────┐    ┌──────────────┐
+│   User      │    │  Smart       │    │  Recipient   │
+│   Wallet    │    │  Contract    │    │   Address    │
+└──────┬──────┘    └──────┬───────┘    └──────┬───────┘
+       │                  │                    │
+       │ 1. Create & Fund │                    │
+       │─────────────────>│                    │
+       │                  │                    │
+       │ 2. Payment Due   │                    │
+       │─────────────────>│                    │
+       │                  │                    │
+       │                  │ 3. Send Payment    │
+       │                  │───────────────────>│
+       │                  │                    │
+       │ 4. Update State  │                    │
+       │<─────────────────│                    │
+       │                  │                    │
+       │ 5. Cancel (opt)  │                    │
+       │─────────────────>│                    │
+       │                  │                    │
+       │ 6. Return Funds  │                    │
+       │<─────────────────│                    │
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- Smart Contract -->
+    <section id="smart-contract" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-file-contract"></i>
+        Smart Contract
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-code"></i>
+          Contract Details
+        </h3>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>Type:</strong> PlutusV2 Script</li>
+          <li><strong>Language:</strong> Plutus Core</li>
+          <li><strong>Script Hash:</strong> script1cda... (testnet)</li>
+          <li><strong>Address:</strong> addr_test1wz... (testnet)</li>
+          <li><strong>Network:</strong> Cardano Preprod Testnet</li>
+        </ul>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-sitemap"></i>
+          Contract Logic
+        </h3>
+        <pre><code class="haskell">
+-- Haskell pseudocode for contract logic
+validateTransaction :: Datum -> Redeemer -> ScriptContext -> Bool
+validateTransaction datum redeemer ctx =
+  case redeemer of
+    Pay -> 
+      -- Check payment is due
+      currentTime >= datum.nextPayment &&
+      -- Check correct amount sent to recipient
+      amountToRecipient == datum.amount &&
+      -- Check remaining funds go back to contract
+      remainingFunds >= 0 &&
+      -- Check updated datum has correct next payment
+      newDatum.nextPayment == datum.nextPayment + datum.interval
+    
+    Cancel ->
+      -- Check payer signature
+      signedBy datum.payer &&
+      -- Check all funds returned to payer
+      amountToPayer == utxoValue
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- Datum & Redeemer -->
+    <section id="datum-redeemer" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-database"></i>
+        Datum & Redeemer Schema
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-table"></i>
+          Datum Structure
+        </h3>
+        <div class="schema-card">
+          <div class="schema-title">RecurringDatum</div>
+          <div class="schema-field">
+            <div class="field-name">rdPayer</div>
+            <div class="field-type">Data.Bytes()</div>
+          </div>
+          <div class="schema-field">
+            <div class="field-name">rdRecipient</div>
+            <div class="field-type">Data.Bytes()</div>
+          </div>
+          <div class="schema-field">
+            <div class="field-name">rdAmount</div>
+            <div class="field-type">Data.Integer()</div>
+          </div>
+          <div class="schema-field">
+            <div class="field-name">rdInterval</div>
+            <div class="field-type">Data.Integer()</div>
+          </div>
+          <div class="schema-field">
+            <div class="field-name">rdNextPayment</div>
+            <div class="field-type">Data.Integer()</div>
+          </div>
+        </div>
+        
+        <pre><code class="javascript">
+// JavaScript schema definition
+const RecurringDatum = Data.Object({
+  rdPayer: Data.Bytes(),
+  rdRecipient: Data.Bytes(),
+  rdAmount: Data.Integer(),
+  rdInterval: Data.Integer(),
+  rdNextPayment: Data.Integer(),
+});
+        </code></pre>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-exchange-alt"></i>
+          Redeemer Types
+        </h3>
+        <div class="schema-card">
+          <div class="schema-title">Redeemer Actions</div>
+          <div class="schema-field">
+            <div class="field-name">Pay</div>
+            <div class="field-type">Constr(0, [])</div>
+          </div>
+          <div class="schema-field">
+            <div class="field-name">Cancel</div>
+            <div class="field-type">Constr(1, [])</div>
+          </div>
+        </div>
+        
+        <pre><code class="javascript">
+// JavaScript redeemer definitions
+const payRedeemer = Data.to(new Constr(0, []));
+const cancelRedeemer = Data.to(new Constr(1, []));
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- JavaScript API -->
+    <section id="javascript-api" class="doc-section">
+      <h2 class="section-title">
+        <i class="fab fa-js"></i>
+        JavaScript API Reference
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-function"></i>
+          Core Functions
+        </h3>
+        
+        <div class="api-endpoint">
+          <span class="endpoint-method method-post">POST</span>
+          <span class="endpoint-url">createRecurringPayment()</span>
+        </div>
+        <p>Creates a new recurring payment subscription.</p>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>recipientAddr</td>
+              <td>String</td>
+              <td>Cardano address of recipient</td>
+            </tr>
+            <tr>
+              <td>amountAda</td>
+              <td>Number</td>
+              <td>Amount in ADA (minimum 1)</td>
+            </tr>
+            <tr>
+              <td>intervalDays</td>
+              <td>Number</td>
+              <td>Days between payments (minimum 1)</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="api-endpoint">
+          <span class="endpoint-method method-post">POST</span>
+          <span class="endpoint-url">executeSinglePayment(index)</span>
+        </div>
+        <p>Executes a payment for a specific subscription.</p>
+        
+        <div class="api-endpoint">
+          <span class="endpoint-method method-post">POST</span>
+          <span class="endpoint-url">cancelSingleSubscription(index)</span>
+        </div>
+        <p>Cancels a subscription and returns remaining funds.</p>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-cube"></i>
+          Utility Functions
+        </h3>
+        <pre><code class="javascript">
+// Create datum for recurring payment
+function mkRecurringDatum(payer, recipient, amount, intervalSeconds, nextPayment) {
+  return Data.to({
+    rdPayer: payer,
+    rdRecipient: recipient,
+    rdAmount: BigInt(amount),
+    rdInterval: BigInt(intervalSeconds),
+    rdNextPayment: BigInt(nextPayment),
+  }, RecurringDatum);
+}
+
+// Get script address
+const scriptAddress = lucid.utils.validatorToAddress(script);
+
+// Parse datum from UTXO
+const datum = Data.from(utxo.datum, RecurringDatum);
+        </code></pre>
+      </div>
+    </section>
+
+    <!-- Contract Parameters -->
+    <section id="contract-parameters" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-sliders-h"></i>
+        Contract Parameters
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-tachometer-alt"></i>
+          Configuration
+        </h3>
+        <pre><code class="javascript">
+// Configuration constants
+const BLOCKFROST_URL = "https://cardano-preprod.blockfrost.io/api/v0";
+const BLOCKFROST_KEY = "preprodYjRkHfcazNkL0xxG9C2RdUbUoTrG7wip";
+const NETWORK = "Preprod";
+
+// Smart contract CBOR (truncated for brevity)
+const SCRIPT_CBOR = "590f610100003232323233223322323232...";
+        </code></pre>
+      </div>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-ruler"></i>
+          Limits & Constraints
+        </h3>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Minimum</th>
+              <th>Maximum</th>
+              <th>Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Payment Amount</td>
+              <td>1 ADA</td>
+              <td>No limit</td>
+              <td>10 ADA</td>
+            </tr>
+            <tr>
+              <td>Payment Interval</td>
+              <td>1 day</td>
+              <td>365 days</td>
+              <td>30 days</td>
+            </tr>
+            <tr>
+              <td>Funded Cycles</td>
+              <td>1</td>
+              <td>No limit</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td>Transaction Size</td>
+              <td>-</td>
+              <td>16 KB</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Error Codes -->
+    <section id="error-codes" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-exclamation-triangle"></i>
+        Error Codes
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-bug"></i>
+          Common Errors
+        </h3>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Error Code</th>
+              <th>Description</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ERR_WALLET_NOT_CONNECTED</td>
+              <td>No wallet connection detected</td>
+              <td>Connect Cardano wallet</td>
+            </tr>
+            <tr>
+              <td>ERR_INSUFFICIENT_FUNDS</td>
+              <td>Not enough ADA in wallet</td>
+              <td>Add funds to wallet</td>
+            </tr>
+            <tr>
+              <td>ERR_INVALID_RECIPIENT</td>
+              <td>Invalid recipient address format</td>
+              <td>Check address format</td>
+            </tr>
+            <tr>
+              <td>ERR_PAYMENT_TOO_EARLY</td>
+              <td>Payment attempted before due date</td>
+              <td>Wait until payment due</td>
+            </tr>
+            <tr>
+              <td>ERR_CONTRACT_EXECUTION</td>
+              <td>Smart contract validation failed</td>
+              <td>Check datum/redeemer</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Security Model -->
+    <section id="security-model" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-shield-alt"></i>
+        Security Model
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-lock"></i>
+          Security Features
+        </h3>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>Non-Custodial:</strong> Users maintain full control of their funds</li>
+          <li><strong>Time-Locked:</strong> Payments only execute at scheduled times</li>
+          <li><strong>Signature Verification:</strong> Only payer can cancel subscriptions</li>
+          <li><strong>Amount Validation:</strong> Smart contract verifies payment amounts</li>
+          <li><strong>No Admin Keys:</strong> No backdoors or admin controls</li>
+        </ul>
+      </div>
+      
+      <div class="warning-box">
+        <strong>Important Security Notes:</strong>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+          <li>Always verify the smart contract address before use</li>
+          <li>Never share your wallet seed phrase or private keys</li>
+          <li>Test with small amounts first on testnet</li>
+          <li>Monitor subscription expiration dates</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-question-circle"></i>
+        Frequently Asked Questions
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-question"></i>
+          General Questions
+        </h3>
+        
+        <div style="margin: 20px 0;">
+          <strong>Q: Is there any fee for using RecurringPay?</strong>
+          <p style="margin-top: 5px; color: rgba(255, 255, 255, 0.8);">
+            A: No, RecurringPay has zero platform fees. You only pay standard Cardano network transaction fees.
+          </p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <strong>Q: What happens if I don't have enough funds for a payment?</strong>
+          <p style="margin-top: 5px; color: rgba(255, 255, 255, 0.8);">
+            A: The payment will fail, and the subscription will remain active until the next payment cycle. 
+            You'll need to add funds to continue payments.
+          </p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <strong>Q: Can I change the payment amount or interval?</strong>
+          <p style="margin-top: 5px; color: rgba(255, 255, 255, 0.8);">
+            A: Currently, you need to cancel the existing subscription and create a new one with updated parameters.
+          </p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <strong>Q: Is this available on mainnet?</strong>
+          <p style="margin-top: 5px; color: rgba(255, 255, 255, 0.8);">
+            A: Currently only on Preprod testnet. Mainnet deployment will be announced after thorough testing.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Support -->
+    <section id="support" class="doc-section">
+      <h2 class="section-title">
+        <i class="fas fa-life-ring"></i>
+        Support & Community
+      </h2>
+      
+      <div class="content-card">
+        <h3 class="card-title">
+          <i class="fas fa-hands-helping"></i>
+          Getting Help
+        </h3>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>GitHub Issues:</strong> Report bugs and feature requests</li>
+          <li><strong>Discord Community:</strong> Join our community for discussions</li>
+          <li><strong>Email Support:</strong> support@recurringpay.io</li>
+          <li><strong>Documentation:</strong> Check this documentation first</li>
+        </ul>
+      </div>
+      
+      <div class="success-box">
+        <strong>Contributing:</strong> RecurringPay is open source! Visit our GitHub repository to contribute, 
+        report issues, or suggest improvements. We welcome community contributions.
+      </div>
+    </section>
+  </main>
+
+  <!-- Back to Top Button -->
+  <button class="back-to-top" id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // Initialize syntax highlighting
+    hljs.highlightAll();
+    
+    // Mobile sidebar toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    mobileToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 1024 && 
+          !sidebar.contains(e.target) && 
+          e.target !== mobileToggle && 
+          !mobileToggle.contains(e.target)) {
+        sidebar.classList.remove('active');
+      }
+    });
+    
+    // Active navigation highlighting
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.doc-section');
+    
+    function updateActiveNav() {
+      let current = '';
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        
+        if (scrollY >= sectionTop - 150) {
+          current = section.getAttribute('id');
+        }
+      });
+      
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', updateActiveNav);
+    
+    // Back to top button
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+    
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // Smooth scrolling for navigation links
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const targetId = link.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          // Close sidebar on mobile
+          if (window.innerWidth <= 1024) {
+            sidebar.classList.remove('active');
+          }
+          
+          window.scrollTo({
+            top: targetElement.offsetTop - 100,
+            behavior: 'smooth'
+          });
+          
+          // Update active nav
+          navLinks.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateActiveNav();
+      
+      // Add copy buttons to code blocks
+      document.querySelectorAll('pre code').forEach(codeBlock => {
+        const pre = codeBlock.parentElement;
+        const button = document.createElement('button');
+        button.innerHTML = '<i class="fas fa-copy"></i>';
+        button.className = 'copy-button';
+        button.style.cssText = `
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: rgba(255,255,255,0.1);
+          border: none;
+          color: white;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: all 0.3s ease;
+        `;
+        
+        button.addEventListener('mouseenter', () => {
+          button.style.background = 'rgba(255,255,255,0.2)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+          button.style.background = 'rgba(255,255,255,0.1)';
+        });
+        
+        button.addEventListener('click', () => {
+          navigator.clipboard.writeText(codeBlock.textContent)
+            .then(() => {
+              button.innerHTML = '<i class="fas fa-check"></i>';
+              setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-copy"></i>';
+              }, 2000);
+            });
+        });
+        
+        pre.style.position = 'relative';
+        pre.appendChild(button);
+      });
+    });
+  </script>
+</body>
+</html>

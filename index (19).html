@@ -1,0 +1,917 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RecurringPay | Automated Subscriptions on Cardano</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0033ad;
+      --primary-light: #4d7cfe;
+      --secondary: #00d4aa;
+      --dark: #0f172a;
+      --darker: #0a0f1e;
+      --light: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --border-radius: 20px;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+    
+    /* Header/Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 1000;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transform: rotate(0deg);
+      transition: var(--transition);
+    }
+    
+    .logo:hover .logo-icon {
+      transform: rotate(360deg);
+    }
+    
+    .logo-text {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      padding: 8px 0;
+      position: relative;
+    }
+    
+    .nav-link:hover {
+      color: white;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-light), var(--secondary));
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    .cta-button {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(77, 124, 254, 0.4);
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: 180px 40px 120px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+    
+    .hero-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(77, 124, 254, 0.1) 0%, transparent 70%);
+      z-index: -1;
+    }
+    
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(45deg, white, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+    
+    .hero-subtitle {
+      font-size: 22px;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+    
+    .hero-cta {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    
+    .secondary-button {
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .secondary-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-3px);
+    }
+    
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+      margin: 80px auto;
+      padding: 0 40px;
+    }
+    
+    .stat-card {
+      text-align: center;
+      padding: 30px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: var(--transition);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(77, 124, 254, 0.3);
+    }
+    
+    .stat-number {
+      font-size: 48px;
+      font-weight: 800;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    
+    .stat-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+    
+    /* Features */
+    .features {
+      padding: 100px 40px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.8) 100%);
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, white, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-subtitle {
+      text-align: center;
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 600px;
+      margin: 0 auto 60px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: var(--transition);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(77, 124, 254, 0.3);
+      box-shadow: var(--shadow);
+    }
+    
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+    
+    .feature-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: white;
+    }
+    
+    .feature-desc {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+    }
+    
+    /* How It Works */
+    .how-it-works {
+      padding: 100px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      margin-top: 60px;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      padding: 40px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: var(--transition);
+    }
+    
+    .step:hover {
+      transform: translateX(10px);
+      border-color: rgba(77, 124, 254, 0.3);
+    }
+    
+    .step-number {
+      font-size: 64px;
+      font-weight: 800;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      min-width: 100px;
+    }
+    
+    .step-content {
+      flex: 1;
+    }
+    
+    .step-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: white;
+    }
+    
+    .step-desc {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      font-size: 18px;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      padding: 120px 40px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(77, 124, 254, 0.1), rgba(0, 212, 170, 0.1));
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cta-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(77, 124, 254, 0.2) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(0, 212, 170, 0.2) 0%, transparent 50%);
+      z-index: -1;
+    }
+    
+    .cta-title {
+      font-size: 56px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(45deg, white, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .cta-subtitle {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 60px 40px 40px;
+      background: rgba(10, 15, 30, 0.9);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .footer-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .footer-logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(45deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .footer-desc {
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .social-link {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .social-link:hover {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      transform: translateY(-3px);
+    }
+    
+    .footer-links h3 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: white;
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 40px;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero h1 {
+        font-size: 48px;
+      }
+      
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .nav-links {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .hero {
+        padding: 150px 20px 80px;
+      }
+      
+      .hero h1 {
+        font-size: 36px;
+      }
+      
+      .hero-subtitle {
+        font-size: 18px;
+      }
+      
+      .hero-cta {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .step {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+      }
+      
+      .step-number {
+        min-width: auto;
+      }
+      
+      .section-title {
+        font-size: 36px;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .social-links {
+        justify-content: center;
+      }
+    }
+    
+    /* Animations */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Scroll Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+    }
+    
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="#home" class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-sync-alt"></i>
+      </div>
+      <span class="logo-text">RecurringPay</span>
+    </a>
+    
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#how-it-works" class="nav-link">How It Works</a>
+      <a href="app.html" class="cta-button">
+        <i class="fas fa-rocket"></i>
+        Launch App
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="hero-bg"></div>
+    <h1 class="reveal">Automated Subscriptions on Cardano</h1>
+    <p class="hero-subtitle reveal">
+      Set up recurring payments, manage subscriptions, and automate your finances with Cardano's secure smart contracts.
+      No more manual payments, no more missed deadlines.
+    </p>
+    
+    <div class="hero-cta">
+      <a href="app.html" class="cta-button floating">
+        <i class="fas fa-play-circle"></i>
+        Start Creating Subscriptions
+      </a>
+      <a href="#how-it-works" class="secondary-button">
+        <i class="fas fa-info-circle"></i>
+        Learn How It Works
+      </a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card reveal">
+      <div class="stat-number">0%</div>
+      <div class="stat-label">Platform Fees</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-number">100%</div>
+      <div class="stat-label">Decentralized</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-number">24/7</div>
+      <div class="stat-label">Automation</div>
+    </div>
+    <div class="stat-card reveal">
+      <div class="stat-number">∞</div>
+      <div class="stat-label">Customizable</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section id="features" class="features">
+    <h2 class="section-title reveal">Why Choose RecurringPay?</h2>
+    <p class="section-subtitle reveal">
+      Built on Cardano's secure blockchain, RecurringPay offers unparalleled security and automation for your recurring payments.
+    </p>
+    
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="feature-title">Secure Smart Contracts</h3>
+        <p class="feature-desc">
+          Powered by Plutus smart contracts on Cardano. Your funds remain secure until payment conditions are met.
+        </p>
+      </div>
+      
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <h3 class="feature-title">Fully Automated</h3>
+        <p class="feature-desc">
+          Set it and forget it. Payments execute automatically based on your schedule. No manual intervention needed.
+        </p>
+      </div>
+      
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <h3 class="feature-title">Self-Custody</h3>
+        <p class="feature-desc">
+          You maintain full control of your funds. No third-party holds your ADA - it's always in your wallet.
+        </p>
+      </div>
+      
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-sliders-h"></i>
+        </div>
+        <h3 class="feature-title">Flexible Scheduling</h3>
+        <p class="feature-desc">
+          Daily, weekly, monthly, or custom intervals. Create any payment schedule that fits your needs.
+        </p>
+      </div>
+      
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-ban"></i>
+        </div>
+        <h3 class="feature-title">Cancel Anytime</h3>
+        <p class="feature-desc">
+          Full control over your subscriptions. Cancel at any time and receive remaining funds instantly.
+        </p>
+      </div>
+      
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="feature-title">Transparent History</h3>
+        <p class="feature-desc">
+          All transactions are recorded on-chain. Track every payment with complete transparency.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="how-it-works">
+    <h2 class="section-title reveal">How It Works</h2>
+    <p class="section-subtitle reveal">
+      Setting up automated payments has never been easier. Follow these simple steps:
+    </p>
+    
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-number">01</div>
+        <div class="step-content">
+          <h3 class="step-title">Connect Your Wallet</h3>
+          <p class="step-desc">
+            Connect your Cardano wallet (like Lace, Eternl, or Flint) to the application. We never have access to your private keys or funds.
+          </p>
+        </div>
+      </div>
+      
+      <div class="step reveal">
+        <div class="step-number">02</div>
+        <div class="step-content">
+          <h3 class="step-title">Create Subscription</h3>
+          <p class="step-desc">
+            Enter recipient address, payment amount, and frequency. Give your subscription a name for easy tracking.
+          </p>
+        </div>
+      </div>
+      
+      <div class="step reveal">
+        <div class="step-number">03</div>
+        <div class="step-content">
+          <h3 class="step-title">Fund Smart Contract</h3>
+          <p class="step-desc">
+            Deposit the required amount into the smart contract. You can fund multiple payment cycles at once.
+          </p>
+        </div>
+      </div>
+      
+      <div class="step reveal">
+        <div class="step-number">04</div>
+        <div class="step-content">
+          <h3 class="step-title">Automated Payments</h3>
+          <p class="step-desc">
+            The smart contract automatically sends payments at the scheduled times. You can monitor or cancel anytime.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-bg"></div>
+    <h2 class="cta-title reveal">Ready to Automate Your Payments?</h2>
+    <p class="cta-subtitle reveal">
+      Join the future of automated payments on Cardano. No fees, full control, and peace of mind.
+    </p>
+    
+    <div class="hero-cta">
+      <a href="app.html" class="cta-button floating">
+        <i class="fas fa-bolt"></i>
+        Launch Application
+      </a>
+      <a href="#features" class="secondary-button">
+        <i class="fas fa-book"></i>
+        Learn More
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-column">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <span class="footer-logo-text">RecurringPay</span>
+        </div>
+        <p class="footer-desc">
+          Automated recurring payments powered by Cardano smart contracts. Secure, decentralized, and completely free.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="social-link">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="#" class="social-link">
+            <i class="fab fa-discord"></i>
+          </a>
+          <a href="#" class="social-link">
+            <i class="fab fa-telegram"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <h3>Product</h3>
+        <ul>
+          <li><a href="app.html">Application</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="documentation.html">Documentation</a></li>
+          <li><a href="#">GitHub</a></li>
+        </ul>
+      </div>
+      
+    
+    </div>
+    
+    <div class="footer-bottom">
+      <p>Coxygen Global 2026 RecurringPay. All rights reserved. Built on Cardano.</p>
+      <p>This is a testnet application. Do not use with real funds.</p>
+      <p>By Ridotshila Mambeda.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll animation
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.reveal');
+      
+      reveals.forEach(element => {
+        const windowHeight = window.innerHeight;
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < windowHeight - elementVisible) {
+          element.classList.add('active');
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // Initialize animations on load
+    document.addEventListener('DOMContentLoaded', function() {
+      revealOnScroll();
+    });
+  </script>
+</body>
+</html>
